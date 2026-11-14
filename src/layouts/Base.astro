@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import { site } from '../site';
 
 interface Props {
@@ -19,6 +20,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Font cssVariable="--font-schibsted" preload />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -61,7 +63,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     --muted: #6e6e69;
     --border: #e4e4e0;
     --accent: #e8590c;
-    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --sans: var(--font-schibsted);
     --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
     color-scheme: light;
   }
