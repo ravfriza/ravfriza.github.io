@@ -36,7 +36,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <div class="page">
       <header>
-        <a href="/" class="mono handle">{site.handle}</a>
+        <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
         <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
       </header>
       <main>
@@ -47,12 +47,71 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </footer>
     </div>
     <script>
-      document.getElementById('theme-toggle')?.addEventListener('click', () => {
-        const root = document.documentElement;
+      const root = document.documentElement;
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Theme toggle: the new theme grows out of the button as a circle.
+      const toggle = document.getElementById('theme-toggle');
+      toggle?.addEventListener('click', () => {
         const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-        root.dataset.theme = next;
-        localStorage.setItem('theme', next);
+        const apply = () => {
+          root.dataset.theme = next;
+          localStorage.setItem('theme', next);
+        };
+        if (!('startViewTransition' in document) || reduceMotion) return apply();
+
+        const { left, top, width, height } = toggle.getBoundingClientRect();
+        const x = left + width / 2;
+        const y = top + height / 2;
+        const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        document.startViewTransition(apply).ready.then(() => {
+          root.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+            { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' },
+          );
+        });
       });
+
+      // Handle: characters scramble, then settle left to right.
+      const handle = document.querySelector<HTMLElement>('.handle');
+      if (handle && !reduceMotion) {
+        const text = handle.textContent ?? '';
+        const glyphs = 'abcdefghijklmnopqrstuvwxyz0123456789#%&*+=<>/';
+        let raf = 0;
+        const scramble = () => {
+          cancelAnimationFrame(raf);
+          let frame = 0;
+          const step = () => {
+            const settled = frame / 3;
+            handle.textContent = [...text]
+              .map((char, i) => (i < settled ? char : glyphs[(Math.random() * glyphs.length) | 0]))
+              .join('');
+            if (settled < text.length) {
+              frame++;
+              raf = requestAnimationFrame(step);
+            }
+          };
+          step();
+        };
+        handle.addEventListener('mouseenter', scramble);
+        handle.addEventListener('focus', scramble);
+      }
+
+      // Grid lines brighten near the pointer (mouse/trackpad only).
+      if (matchMedia('(pointer: fine)').matches) {
+        let raf = 0;
+        addEventListener('pointermove', (event) => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            root.style.setProperty('--mx', `${event.clientX}px`);
+            root.style.setProperty('--my', `${event.clientY}px`);
+          });
+        });
+        document.addEventListener('pointerleave', () => {
+          root.style.removeProperty('--mx');
+          root.style.removeProperty('--my');
+        });
+      }
     </script>
   </body>
 </html>
@@ -66,6 +125,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     --sans: var(--font-schibsted);
     --mono: var(--font-jetbrains-mono);
     --line: color-mix(in srgb, var(--fg) 10%, transparent);
+    --line-lit: color-mix(in srgb, var(--fg) 85%, transparent);
+    --mx: -100vmax;
+    --my: -100vmax;
+    /* Fixed attachment positions the spotlight in viewport coordinates on every line. */
+    --line-bg: radial-gradient(circle 200px at var(--mx) var(--my), var(--line-lit), var(--line))
+      fixed;
     color-scheme: light;
   }
 
@@ -115,17 +180,23 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   .muted {
     color: var(--muted);
   }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
 </style>
 
 <style>
   .page {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     max-width: 51rem;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
-    border-inline: 1px solid var(--line);
   }
 
   main {
@@ -137,16 +208,36 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     position: relative;
   }
 
-  /* Full-bleed horizontal rules that cross the column's side lines. */
+  /* Side lines of the column, plus full-bleed rules under the header and above the footer. */
+  .page::before,
+  .page::after,
   header::after,
   footer::before {
     content: '';
     position: absolute;
-    left: 50%;
+    background: var(--line-bg);
+  }
+
+  .page::before,
+  .page::after {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+
+  .page::before {
+    left: 0;
+  }
+
+  .page::after {
+    right: 0;
+  }
+
+  header::after,
+  footer::before {
+    left: calc(50% - 50vw);
     width: 100vw;
     height: 1px;
-    background: var(--line);
-    transform: translateX(-50%);
   }
 
   header::after {
@@ -191,8 +282,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   }
 
   @media (max-width: 640px) {
-    .page {
-      border-inline: 0;
+    .page::before,
+    .page::after {
+      display: none;
     }
 
     header {

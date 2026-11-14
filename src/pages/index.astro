@@ -48,10 +48,30 @@ import { site } from '../site';
       }
     </ul>
     <p class="muted mail">
-      Or mail me at <a href={`mailto:${site.email}`} class="mono">{site.email}</a>
+      Or mail me at <a href={`mailto:${site.email}`} class="mono" id="email" title="Click to copy">{site.email}</a> <span id="copied" class="copied mono" aria-live="polite"></span>
     </p>
   </section>
 </Base>
+
+<script>
+  const email = document.getElementById('email');
+  const copied = document.getElementById('copied');
+  let timer = 0;
+  email?.addEventListener('click', async (event) => {
+    if (!navigator.clipboard || !copied) return; // fall back to the mailto link
+    event.preventDefault();
+    try {
+      await navigator.clipboard.writeText(email.textContent ?? '');
+    } catch {
+      location.href = email.getAttribute('href') ?? '';
+      return;
+    }
+    copied.textContent = 'Copied';
+    copied.classList.add('show');
+    clearTimeout(timer);
+    timer = window.setTimeout(() => copied.classList.remove('show'), 1500);
+  });
+</script>
 
 <style>
   h1 {
@@ -116,5 +136,15 @@ import { site } from '../site';
 
   .mail {
     margin-top: 1.5rem;
+  }
+
+  .copied {
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .copied.show {
+    opacity: 1;
   }
 </style>
