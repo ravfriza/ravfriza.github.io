@@ -66,6 +66,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     --accent: #e8590c;
     --sans: var(--font-schibsted);
     --mono: var(--font-jetbrains-mono);
+    --line: color-mix(in srgb, var(--fg) 10%, transparent);
     color-scheme: light;
   }
 
@@ -89,6 +90,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     font-size: 16px;
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
   }
 
   body {
@@ -119,16 +121,50 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
 <style>
   .page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     max-width: 51rem;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
+    border-inline: 1px solid var(--line);
+  }
+
+  main {
+    flex: 1;
+  }
+
+  header,
+  footer {
+    position: relative;
+  }
+
+  /* Full-bleed horizontal rules that cross the column's side lines. */
+  header::after,
+  footer::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 100vw;
+    height: 1px;
+    background: var(--line);
+    transform: translateX(-50%);
+  }
+
+  header::after {
+    bottom: 0;
+  }
+
+  footer::before {
+    top: 0;
   }
 
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4rem;
+    padding-bottom: 2.5rem;
+    margin-bottom: 3.5rem;
     font-size: 0.875rem;
   }
 
@@ -152,14 +188,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   footer {
     margin-top: 4rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
     color: var(--muted);
     font-size: 0.8125rem;
   }
 
   @media (max-width: 640px) {
+    .page {
+      border-inline: 0;
+    }
+
     header {
-      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
   }
 </style>
