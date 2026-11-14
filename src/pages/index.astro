@@ -37,6 +37,9 @@ import { site } from '../site';
         ))
       }
     </ul>
+    <p class="muted mail">
+      Or mail me at <a href={`mailto:${site.email}`} class="mono">{site.email}</a>
+    </p>
   </section>
 </Base>
 
@@ -82,5 +85,9 @@ import { site } from '../site';
 
   .links a:hover {
     border-color: var(--accent);
+  }
+
+  .mail {
+    margin-top: 1.5rem;
   }
 </style>

@@ -3,9 +3,9 @@ export const site = {
   handle: 'ravfriza',
   description:
     'Daffa Ravfriza — fullstack developer at HotelMurah.com.',
+  email: 'ravfrizad@gmail.com',
   links: [
     { label: 'GitHub', href: 'https://github.com/ravfriza', icon: 'github' },
     { label: 'LinkedIn', href: 'https://id.linkedin.com/in/ravfriza', icon: 'linkedin' },
-    { label: 'Email', href: 'mailto:ravfrizad@gmail.com', icon: 'mail' },
   ],
 } as const;
