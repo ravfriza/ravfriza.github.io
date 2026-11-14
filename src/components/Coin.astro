@@ -1,39 +1,27 @@
 ---
-// Illustration of the Rp1.000 coin, 2016 issue: nickel-plated steel, 24.1 mm across, 1.45 mm thick.
-// The number side follows the real design; the picture side uses a generic bust in place of the
+// Line drawing of the Rp1.000 coin (2016 issue) in the site's monochrome style.
+// The number side follows the real layout; the picture side uses a generic bust in place of the
 // portrait and leaves out the Garuda Pancasila emblem, whose use is restricted by law.
-const SIZE = 128; // px on screen
-const thickness = (1.45 / 24.1) * SIZE; // keep the real proportions
-const edgeLayers = Array.from({ length: 15 }, (_, i) => -thickness / 2 + (thickness * i) / 14);
 const ring = Array.from({ length: 56 }, (_, i) => {
   const a = (i / 56) * Math.PI * 2;
   return { x: 100 + 84 * Math.cos(a), y: 100 + 84 * Math.sin(a) };
 });
-const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
 ---
 
-<div class="coin-flip" style={`--size: ${SIZE}px; --face-z: ${faceZ}`}>
+<div class="coin-flip">
   <button type="button" class="coin-button" aria-label="Flip a coin">
     <span class="toss">
       <span class="coin">
-        {edgeLayers.map((z) => <span class="layer" style={`transform: translateZ(${z.toFixed(2)}px)`} />)}
-
         <span class="face heads" aria-hidden="true">
           <svg viewBox="0 0 200 200">
             <defs>
-              <radialGradient id="coin-metal" cx="35%" cy="30%" r="80%">
-                <stop offset="0" stop-color="#f6f7f9" />
-                <stop offset=".45" stop-color="#cdd0d5" />
-                <stop offset=".8" stop-color="#a3a8af" />
-                <stop offset="1" stop-color="#c3c6cb" />
-              </radialGradient>
               <path id="coin-arc" d="M 32 100 A 68 68 0 0 1 168 100" />
             </defs>
-            <circle cx="100" cy="100" r="99" class="base" />
-            <circle cx="100" cy="100" r="93" class="rim" />
-            <text class="emboss arc"><textPath href="#coin-arc" startOffset="50%" text-anchor="middle">REPUBLIK INDONESIA</textPath></text>
+            <circle cx="100" cy="100" r="98" class="edge" />
+            <circle cx="100" cy="100" r="91" class="rim" />
+            <text class="label"><textPath href="#coin-arc" startOffset="50%" text-anchor="middle">REPUBLIK INDONESIA</textPath></text>
             <path
-              class="relief"
+              class="bust"
               d="M100 62c-14 0-24 11-24 26 0 10 4 18 10 23v9c-15 4-27 12-31 24 12 14 28 20 45 20s33-6 45-20c-4-12-16-20-31-24v-9c6-5 10-13 10-23 0-15-10-26-24-26Z"
             />
           </svg>
@@ -41,29 +29,27 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
 
         <span class="face tails" aria-hidden="true">
           <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="99" class="base" />
-            <circle cx="100" cy="100" r="93" class="rim" />
-            {ring.map((p) => <circle cx={p.x.toFixed(2)} cy={p.y.toFixed(2)} r="2.4" class="dot" />)}
-            <text class="emboss arc"><textPath href="#coin-arc" startOffset="50%" text-anchor="middle">BANK INDONESIA</textPath></text>
-            <text class="emboss value" x="100" y="117" text-anchor="middle">1000</text>
-            <text class="emboss unit" x="100" y="139" text-anchor="middle">RUPIAH</text>
-            <text class="emboss year" x="100" y="163" text-anchor="middle">2016</text>
+            <circle cx="100" cy="100" r="98" class="edge" />
+            <circle cx="100" cy="100" r="91" class="rim" />
+            {ring.map((p) => <circle cx={p.x.toFixed(2)} cy={p.y.toFixed(2)} r="2.2" class="dot" />)}
+            <text class="label"><textPath href="#coin-arc" startOffset="50%" text-anchor="middle">BANK INDONESIA</textPath></text>
+            <text class="value" x="100" y="117" text-anchor="middle">1000</text>
+            <text class="label" x="100" y="139" text-anchor="middle">RUPIAH</text>
+            <text class="label" x="100" y="163" text-anchor="middle">2016</text>
           </svg>
         </span>
       </span>
     </span>
-    <span class="shadow" aria-hidden="true"></span>
   </button>
   <span class="result mono" aria-live="polite">flip me</span>
 </div>
 
 <script>
   const button = document.querySelector<HTMLButtonElement>('.coin-button');
-  const toss = button?.querySelector<HTMLElement>('.toss');
   const coin = button?.querySelector<HTMLElement>('.coin');
   const result = document.querySelector<HTMLElement>('.coin-flip .result');
 
-  if (button && toss && coin && result) {
+  if (button && coin && result) {
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const duration = reduceMotion ? 0 : 1100;
     let angle = 0;
@@ -106,18 +92,16 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
   }
 
   .coin-button {
-    position: relative;
-    width: var(--size);
-    height: var(--size);
+    width: 8rem;
+    height: 8rem;
     padding: 0;
     border: 0;
     background: none;
+    color: var(--fg);
     cursor: pointer;
   }
 
   .toss {
-    position: relative;
-    z-index: 1;
     display: block;
     width: 100%;
     height: 100%;
@@ -126,10 +110,6 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
 
   .tossing .toss {
     animation: toss 1100ms;
-  }
-
-  .tossing .shadow {
-    animation: shadow 1100ms;
   }
 
   @keyframes toss {
@@ -146,23 +126,6 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
     }
   }
 
-  @keyframes shadow {
-    50% {
-      transform: scale(0.5);
-      opacity: 0.3;
-    }
-  }
-
-  .shadow {
-    position: absolute;
-    left: 15%;
-    right: 15%;
-    bottom: -0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, color-mix(in srgb, var(--fg) 25%, transparent), transparent);
-  }
-
   .coin {
     position: relative;
     display: block;
@@ -172,87 +135,50 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
     transition: transform 1100ms cubic-bezier(0.2, 0.6, 0.3, 1);
   }
 
-  .layer,
   .face {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-  }
-
-  .layer {
-    background: #8d9299;
-  }
-
-  .face {
     backface-visibility: hidden;
+  }
+
+  .tails {
+    transform: rotateX(180deg);
   }
 
   .face svg {
     display: block;
     width: 100%;
     height: 100%;
+    overflow: visible;
   }
 
-  .heads {
-    transform: translateZ(var(--face-z));
+  .edge {
+    fill: var(--bg);
+    stroke: currentColor;
+    stroke-width: 2.5;
   }
 
-  .tails {
-    transform: rotateX(180deg) translateZ(var(--face-z));
-  }
-
-  .base {
-    fill: url(#coin-metal);
-    stroke: #8d9299;
-    stroke-width: 2;
-  }
-
-  .rim {
+  .rim,
+  .dot,
+  .bust {
     fill: none;
-    stroke: #9aa0a7;
-    stroke-width: 1.5;
+    stroke: var(--muted);
+    stroke-width: 1.2;
   }
 
-  .dot {
-    fill: none;
-    stroke: #8d9299;
-    stroke-width: 1;
-  }
-
-  /* Struck-metal look: dark letters with a light edge below. */
-  .emboss {
-    fill: #6c7179;
-    font-family: var(--sans);
-    font-weight: 600;
-    paint-order: stroke;
-    stroke: rgb(255 255 255 / 0.55);
-    stroke-width: 0.8;
-  }
-
-  .arc {
-    font-size: 15px;
+  .label {
+    fill: var(--muted);
+    font-family: var(--mono);
+    font-size: 13px;
     letter-spacing: 2px;
   }
 
   .value {
+    fill: currentColor;
+    font-family: var(--sans);
     font-size: 46px;
+    font-weight: 600;
     letter-spacing: -1px;
-  }
-
-  .unit {
-    font-size: 15px;
-    letter-spacing: 3px;
-  }
-
-  .year {
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-
-  .relief {
-    fill: #b0b5bc;
-    stroke: #8d9299;
-    stroke-width: 1.2;
   }
 
   .result {
@@ -261,8 +187,7 @@ const faceZ = `${(thickness / 2 + 0.2).toFixed(2)}px`;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tossing .toss,
-    .tossing .shadow {
+    .tossing .toss {
       animation: none;
     }
 
