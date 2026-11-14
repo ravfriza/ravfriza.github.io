@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import AsciiSides from '../components/AsciiSides.astro';
 import { site } from '../site';
 
 interface Props {
@@ -41,6 +42,7 @@ const ogImage = new URL('/og.png', Astro.site);
     </script>
   </head>
   <body>
+    <AsciiSides />
     <div class="page">
       <header>
         <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
