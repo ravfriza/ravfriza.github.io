@@ -1,0 +1,173 @@
+---
+import { site } from '../site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = site.name, description = site.description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="generator" content={Astro.generator} />
+    <script is:inline>
+      const stored = localStorage.getItem('theme');
+      const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    </script>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a href="/" class="mono handle">{site.handle}</a>
+        <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer>
+        © {new Date().getFullYear()} {site.name}
+      </footer>
+    </div>
+    <script>
+      document.getElementById('theme-toggle')?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('theme', next);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #fbfbfa;
+    --fg: #1c1c1b;
+    --muted: #6e6e69;
+    --border: #e4e4e0;
+    --accent: #e8590c;
+    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+    --gutter: 6.5rem;
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    --bg: #121211;
+    --fg: #ececea;
+    --muted: #8d8d87;
+    --border: #2a2a28;
+    --accent: #ff8a3d;
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--fg) 30%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+  }
+
+  a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .mono {
+    font-family: var(--mono);
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+</style>
+
+<style>
+  .page {
+    max-width: calc(36rem + var(--gutter));
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
+  }
+
+  header,
+  footer {
+    margin-left: var(--gutter);
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+    font-size: 0.875rem;
+  }
+
+  .handle {
+    text-decoration: none;
+  }
+
+  #theme-toggle {
+    background: none;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  #theme-toggle:hover {
+    color: var(--fg);
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 640px) {
+    header,
+    footer {
+      margin-left: 0;
+    }
+
+    header {
+      margin-bottom: 3rem;
+    }
+  }
+</style>

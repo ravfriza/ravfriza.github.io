@@ -1,0 +1,199 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { site } from '../site';
+
+const log = (await getCollection('log')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const month = (date: Date) => date.toISOString().slice(0, 7);
+---
+
+<Base>
+  <section class="intro">
+    <h1>Hi, I'm Daffa Ravfriza.</h1>
+    <p class="muted">
+      Web developer at <a href="https://www.hotelmurah.com">HotelMurah.com</a>. Outside of work,
+      I'm usually watching movies, reading books, or playing games.
+    </p>
+    <p class="muted">This page is where I keep track of what I build. It grows as I do.</p>
+  </section>
+
+  <section class="row">
+    <h2 class="label mono">now</h2>
+    <div>
+      <p class="now"><span class="dot" aria-hidden="true"></span>{site.now}</p>
+      <p class="mono muted small">
+        {site.location}<span id="clock" data-tz={site.timeZone} data-label={site.timeZoneLabel}
+        ></span>
+      </p>
+    </div>
+  </section>
+
+  <section class="row">
+    <h2 class="label mono">log</h2>
+    <ol class="log">
+      {
+        log.map((entry) => (
+          <li>
+            <time class="mono muted" datetime={entry.data.date.toISOString()}>
+              {month(entry.data.date)}
+            </time>
+            {entry.data.href ? <a href={entry.data.href}>{entry.data.title}</a> : <span>{entry.data.title}</span>}
+          </li>
+        ))
+      }
+      <li>
+        <span class="mono muted">next</span>
+        <em class="muted">{site.next}</em>
+      </li>
+    </ol>
+  </section>
+
+  <section class="row">
+    <h2 class="label mono">elsewhere</h2>
+    <ul class="links">
+      {
+        site.links.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<script>
+  const clock = document.getElementById('clock');
+  if (clock) {
+    const format = new Intl.DateTimeFormat('en-GB', {
+      timeZone: clock.dataset.tz,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const tick = () => {
+      clock.textContent = ` · ${format.format(new Date())} ${clock.dataset.label}`;
+    };
+    tick();
+    setInterval(tick, 30_000);
+  }
+</script>
+
+<style>
+  h1 {
+    margin: 0 0 1rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0 0 0.75rem;
+  }
+
+  .intro {
+    margin-left: var(--gutter);
+    margin-bottom: 3.5rem;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: var(--gutter) 1fr;
+    margin-bottom: 2.75rem;
+  }
+
+  .label {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.65rem;
+  }
+
+  .small {
+    font-size: 0.8125rem;
+  }
+
+  .now {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .dot {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+
+  .dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    animation: pulse 2.4s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    from {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    to {
+      transform: scale(2.6);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot::after {
+      animation: none;
+    }
+  }
+
+  .log,
+  .links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .log li {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    margin-bottom: 0.4rem;
+  }
+
+  .log .mono {
+    font-size: 0.8125rem;
+    line-height: 1.65rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .intro {
+      margin-left: 0;
+    }
+
+    .row {
+      grid-template-columns: 1fr;
+    }
+
+    .label {
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>
