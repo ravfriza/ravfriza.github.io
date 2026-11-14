@@ -1,8 +1,23 @@
 // @ts-check
+import { fileURLToPath } from 'node:url';
 import { defineConfig, fontProviders } from 'astro/config';
 
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+
+/** @type {import('astro').AstroIntegration} */
+const mediaIdleDirective = {
+  name: 'media-idle-directive',
+  hooks: {
+    'astro:config:setup': ({ addClientDirective }) => {
+      addClientDirective({
+        name: 'media-idle',
+        entrypoint: fileURLToPath(new URL('./src/directives/media-idle.ts', import.meta.url)),
+      });
+    },
+  },
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,7 +44,7 @@ export default defineConfig({
     },
   ],
 
-  integrations: [react()],
+  integrations: [react(), sitemap(), mediaIdleDirective],
 
   vite: {
     plugins: [tailwindcss()],

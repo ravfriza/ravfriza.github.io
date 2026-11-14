@@ -23,6 +23,9 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#fbfbfa" />
     <Font cssVariable="--font-schibsted" preload />
     <Font cssVariable="--font-jetbrains-mono" />
     <meta property="og:type" content="website" />
@@ -40,11 +43,12 @@ const ogImage = new URL('/og.png', Astro.site);
       const stored = localStorage.getItem('theme');
       const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      document.querySelector('meta[name="theme-color"]').content = dark ? '#050505' : '#fbfbfa';
     </script>
   </head>
   <body>
     <div class="margin-static">
-      <MarginStatic client:media="(min-width: 1300px)" className="absolute inset-0" />
+      <MarginStatic client:media-idle="(min-width: 1300px)" className="absolute inset-0" />
     </div>
     <div class="page">
       <header>
@@ -52,7 +56,7 @@ const ogImage = new URL('/og.png', Astro.site);
         <nav class="nav">
           <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="projects, still in progress">projects</s>
           <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="notes, still in progress">notes</s>
-          <a href="/uses" class="mono">uses</a>
+          <a href="/uses/" class="mono">uses</a>
           <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
         </nav>
       </header>
@@ -74,6 +78,9 @@ const ogImage = new URL('/og.png', Astro.site);
         const apply = () => {
           root.dataset.theme = next;
           localStorage.setItem('theme', next);
+          document
+            .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+            ?.setAttribute('content', next === 'dark' ? '#050505' : '#fbfbfa');
         };
         if (!('startViewTransition' in document) || reduceMotion) return apply();
 
@@ -311,7 +318,7 @@ const ogImage = new URL('/og.png', Astro.site);
 
   .soon {
     position: relative;
-    color: color-mix(in srgb, var(--muted) 60%, transparent);
+    color: color-mix(in srgb, var(--muted) 85%, transparent);
     cursor: default;
     outline: none;
   }
