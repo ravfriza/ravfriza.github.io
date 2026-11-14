@@ -49,6 +49,10 @@ const ring = Array.from({ length: 56 }, (_, i) => {
   const coin = button?.querySelector<HTMLElement>('.coin');
   const result = document.querySelector<HTMLElement>('.coin-flip .result');
 
+  // Rare easter egg: sometimes the landing comes with a meme sound.
+  const SOUND_CHANCE = 1 / 8;
+  const SOUNDS = ['fah', 'vine-boom', 'undertaker-bell', 'fart'].map((name) => `/sounds/${name}.mp3`);
+
   if (button && coin && result) {
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const duration = reduceMotion ? 0 : 1100;
@@ -62,6 +66,11 @@ const ring = Array.from({ length: 56 }, (_, i) => {
       flipping = true;
 
       const heads = Math.random() < 0.5;
+      // Pick and start loading the sound inside the click, so browsers treat playback as user-initiated.
+      const sound =
+        Math.random() < SOUND_CHANCE
+          ? new Audio(SOUNDS[Math.floor(Math.random() * SOUNDS.length)])
+          : null;
       // Land on a multiple of 360° for heads, offset by 180° for tails, after a few full turns.
       let target = angle - (angle % 360) + (reduceMotion ? 0 : 5 * 360) + (heads ? 0 : 180);
       if (target <= angle) target += 360;
@@ -78,6 +87,10 @@ const ring = Array.from({ length: 56 }, (_, i) => {
         last = outcome;
         result.textContent = streak > 1 ? `${outcome} ×${streak}` : outcome;
         flipping = false;
+        if (sound) {
+          sound.volume = 0.6;
+          sound.play().catch(() => {}); // autoplay blocked or offline: stay silent
+        }
       }, duration);
     });
   }
