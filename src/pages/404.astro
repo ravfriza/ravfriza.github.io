@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404 · Daffa Ravfriza" description="This page doesn't exist.">
+  <section class="not-found">
+    <p class="code mono">404</p>
+    <h1>Page not found</h1>
+    <p class="muted">This page doesn't exist, or it moved.</p>
+    <p><a href="/">← Back to home</a></p>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    padding-top: 2rem;
+  }
+
+  .code {
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0 0 1.5rem;
+  }
+</style>
