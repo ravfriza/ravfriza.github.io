@@ -44,7 +44,10 @@ const ogImage = new URL('/og.png', Astro.site);
     <div class="page">
       <header>
         <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
-        <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
+        <nav class="nav">
+          <a href="/uses" class="mono">uses</a>
+          <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
+        </nav>
       </header>
       <main>
         <slot />
@@ -266,6 +269,21 @@ const ogImage = new URL('/og.png', Astro.site);
 
   .handle {
     text-decoration: none;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .nav a:hover {
+    color: var(--fg);
   }
 
   #theme-toggle {

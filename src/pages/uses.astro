@@ -1,0 +1,145 @@
+---
+import Base from '../layouts/Base.astro';
+
+type Item = { name: string; href?: string; note: string };
+type Group = { title: string; items: Item[] };
+
+const groups: Group[] = [
+  {
+    title: 'Hardware',
+    items: [
+      {
+        name: 'Lenovo LOQ 15IRX9',
+        note: 'Intel Core i5-13450HX, GeForce RTX 3050 6 GB. 512 GB SK hynix and 1 TB Samsung 980 SSDs.',
+      },
+      { name: 'External monitor', note: '1920×1080.' },
+      {
+        name: 'Press Play Essential75',
+        href: 'https://pressplayid.com/products/essential75-75-wired-mechanical-keyboard',
+        note: '75% mechanical keyboard.',
+      },
+      {
+        name: 'VortexSeries Mono 75 V2',
+        href: 'https://vortexseries.net/products/mono-series',
+        note: '75% gasket-mount mechanical keyboard.',
+      },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      {
+        name: 'Fedora Linux',
+        href: 'https://fedoraproject.org',
+        note: 'On Linux since 2024: Linux Mint first, Fedora now.',
+      },
+      { name: 'niri', href: 'https://github.com/YaLTeR/niri', note: 'Scrollable-tiling Wayland compositor.' },
+      {
+        name: 'DankMaterialShell',
+        href: 'https://github.com/AvengeMedia/DankMaterialShell',
+        note: 'Desktop shell on top of niri: bar, launcher, notifications.',
+      },
+    ],
+  },
+  {
+    title: 'Development',
+    items: [
+      { name: 'Zed', href: 'https://zed.dev', note: 'Code editor.' },
+      { name: 'Ghostty', href: 'https://ghostty.org', note: 'Terminal.' },
+      { name: 'zsh + Starship', href: 'https://starship.rs', note: 'Shell and prompt.' },
+      { name: 'tmux', href: 'https://github.com/tmux/tmux', note: 'Terminal sessions.' },
+      { name: 'lazygit', href: 'https://github.com/jesseduffield/lazygit', note: 'Git in the terminal.' },
+      { name: 'Orca', note: 'Worktrees and terminals for coding agents.' },
+      { name: 'Oh My Pi + Claude Code', note: 'AI coding.' },
+      { name: 'Bruno', href: 'https://www.usebruno.com', note: 'API client.' },
+      { name: 'fnm, Bun', href: 'https://bun.sh', note: 'Node versions and a fast JS runtime.' },
+      { name: 'Docker, Podman', note: 'Containers.' },
+    ],
+  },
+  {
+    title: 'Apps',
+    items: [
+      { name: 'Zen Browser', href: 'https://zen-browser.app', note: 'Browser.' },
+      { name: 'Obsidian', href: 'https://obsidian.md', note: 'Notes.' },
+      { name: 'Todoist', href: 'https://todoist.com', note: 'Tasks.' },
+      { name: 'Slack', note: 'Work chat.' },
+      { name: 'ZapZap', href: 'https://github.com/rafatosta/zapzap', note: 'WhatsApp on Linux.' },
+      { name: 'Spotify', note: 'Music.' },
+    ],
+  },
+];
+---
+
+<Base title="Uses · Daffa Ravfriza" description="The hardware and software Daffa Ravfriza uses every day.">
+  <section class="intro">
+    <h1>Uses</h1>
+    <p class="muted">The hardware and software I use every day. Updated November 2026.</p>
+  </section>
+
+  {
+    groups.map((group) => (
+      <section class="group">
+        <h2>{group.title}</h2>
+        <ul>
+          {group.items.map((item) => (
+            <li>
+              <span class="name">{item.href ? <a href={item.href}>{item.name}</a> : item.name}</span>
+              <span class="note muted">{item.note}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .intro {
+    margin-bottom: 3rem;
+  }
+
+  .group {
+    margin-bottom: 2.5rem;
+  }
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 640px) {
+    li {
+      grid-template-columns: 1fr;
+      gap: 0.1rem;
+    }
+  }
+</style>
