@@ -287,14 +287,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   }
 
   @media (max-width: 640px) {
+    .page {
+      padding-top: 1rem;
+    }
+
     .page::before,
     .page::after {
       display: none;
     }
 
     header {
-      padding-bottom: 2rem;
-      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.75rem;
     }
   }
 </style>
