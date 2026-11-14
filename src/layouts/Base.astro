@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
-import AsciiSides from '../components/AsciiSides.astro';
+import '../styles/global.css';
+import { MarginStatic } from '../components/MarginStatic';
 import { site } from '../site';
 
 interface Props {
@@ -42,7 +43,9 @@ const ogImage = new URL('/og.png', Astro.site);
     </script>
   </head>
   <body>
-    <AsciiSides />
+    <div class="margin-static">
+      <MarginStatic client:media="(min-width: 1300px)" className="absolute inset-0" />
+    </div>
     <div class="page">
       <header>
         <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
@@ -111,19 +114,21 @@ const ogImage = new URL('/og.png', Astro.site);
         handle.addEventListener('focus', scramble);
       }
 
-      // Grid lines brighten near the pointer (mouse/trackpad only).
+      // Grid lines brighten near the pointer (mouse/trackpad only). The position lives on
+      // <body>, not <html>: the ASCII engine re-reads theme colours on every <html> style change.
       if (matchMedia('(pointer: fine)').matches) {
+        const body = document.body;
         let raf = 0;
         addEventListener('pointermove', (event) => {
           cancelAnimationFrame(raf);
           raf = requestAnimationFrame(() => {
-            root.style.setProperty('--mx', `${event.clientX}px`);
-            root.style.setProperty('--my', `${event.clientY}px`);
+            body.style.setProperty('--mx', `${event.clientX}px`);
+            body.style.setProperty('--my', `${event.clientY}px`);
           });
         });
         document.addEventListener('pointerleave', () => {
-          root.style.removeProperty('--mx');
-          root.style.removeProperty('--my');
+          body.style.removeProperty('--mx');
+          body.style.removeProperty('--my');
         });
       }
     </script>
@@ -140,11 +145,6 @@ const ogImage = new URL('/og.png', Astro.site);
     --mono: var(--font-jetbrains-mono);
     --line: color-mix(in srgb, var(--fg) 10%, transparent);
     --line-lit: color-mix(in srgb, var(--fg) 85%, transparent);
-    --mx: -100vmax;
-    --my: -100vmax;
-    /* Fixed attachment positions the spotlight in viewport coordinates on every line. */
-    --line-bg: radial-gradient(circle 200px at var(--mx) var(--my), var(--line-lit), var(--line))
-      fixed;
     color-scheme: light;
   }
 
@@ -172,6 +172,25 @@ const ogImage = new URL('/og.png', Astro.site);
 
   body {
     margin: 0;
+    --mx: -100vmax;
+    --my: -100vmax;
+    /* Fixed attachment positions the spotlight in viewport coordinates on every line. */
+    --line-bg: radial-gradient(circle 200px at var(--mx) var(--my), var(--line-lit), var(--line))
+      fixed;
+  }
+
+  /* Full-viewport layer behind the page; the effect clears the content column itself. */
+  .margin-static {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  @media (max-width: 1299px) {
+    .margin-static {
+      display: none;
+    }
   }
 
   a {

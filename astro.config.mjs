@@ -1,9 +1,13 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 
+import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ravfriza.github.io',
+
   fonts: [
     {
       provider: fontProviders.fontsource(),
@@ -24,4 +28,10 @@ export default defineConfig({
       fallbacks: ['monospace'],
     },
   ],
+
+  integrations: [react()],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });

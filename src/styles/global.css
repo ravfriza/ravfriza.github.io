@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* `dark:` follows the site's own theme toggle (data-theme on <html>), not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * shadcn/ui theme variables, pointed at the site palette defined in Base.astro
+ * (--bg, --fg, --muted, --line), so anything shadcn-based follows light and dark mode.
+ */
+:root {
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --primary: var(--fg);
+  --primary-foreground: var(--bg);
+  --muted-foreground: var(--muted);
+  --border: var(--line);
+  --ring: var(--muted);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-ascii-ink: var(--ascii-ink);
+  --color-ascii-paper: var(--ascii-paper);
+  --color-ascii-blue: var(--ascii-color-blue);
+  --color-ascii-purple: var(--ascii-color-purple);
+  --color-ascii-green: var(--ascii-color-green);
+  --color-ascii-pink: var(--ascii-color-pink);
+  --color-ascii-orange: var(--ascii-color-orange);
+  --color-ascii-red: var(--ascii-color-red);
+  --color-ascii-grey: var(--ascii-color-grey);
+}
+
+@layer base {
+  :root {
+    --ascii-ink: var(--primary);
+    --ascii-paper: var(--background);
+    --ascii-cell: 12px;
+    --ascii-font: ui-monospace, "Cascadia Mono", "SF Mono", "JetBrains Mono", Menlo, Consolas, "DejaVu Sans Mono", "Noto Sans Mono", monospace;
+    --ascii-glow: 0.35;
+    --ascii-bloom: var(--ascii-glow);
+    --ascii-color-blue: oklch(0.55 0.17 250);
+    --ascii-color-purple: oklch(0.53 0.2 302);
+    --ascii-color-green: oklch(0.56 0.15 150);
+    --ascii-color-pink: oklch(0.57 0.2 355);
+    --ascii-color-orange: oklch(0.62 0.16 52);
+    --ascii-color-red: oklch(0.55 0.2 27);
+    --ascii-color-grey: oklch(0.56 0.01 250);
+  }
+  [data-theme="dark"] {
+    --ascii-ink: var(--primary);
+    --ascii-paper: var(--background);
+    --ascii-glow: 0.9;
+    --ascii-color-blue: oklch(0.72 0.14 240);
+    --ascii-color-purple: oklch(0.72 0.17 304);
+    --ascii-color-green: oklch(0.8 0.17 150);
+    --ascii-color-pink: oklch(0.74 0.17 354);
+    --ascii-color-orange: oklch(0.79 0.15 62);
+    --ascii-color-red: oklch(0.69 0.19 25);
+    --ascii-color-grey: oklch(0.66 0.01 250);
+  }
+}
