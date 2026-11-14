@@ -63,7 +63,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     --accent: #e8590c;
     --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
-    --gutter: 6.5rem;
     color-scheme: light;
   }
 
@@ -117,14 +116,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
 <style>
   .page {
-    max-width: calc(48rem + var(--gutter));
+    max-width: 51rem;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
-  }
-
-  header,
-  footer {
-    margin-left: var(--gutter);
   }
 
   header {
@@ -161,11 +155,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   }
 
   @media (max-width: 640px) {
-    header,
-    footer {
-      margin-left: 0;
-    }
-
     header {
       margin-bottom: 3rem;
     }
