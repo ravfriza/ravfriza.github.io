@@ -24,15 +24,15 @@ import { site } from '../site';
     </p>
   </section>
 
-  <section class="projects">
+  <!-- <section class="projects">
     <h2>Projects</h2>
-    <p class="muted"><span class="wip mono">WIP</span> Work in progress. Projects will show up here once they ship.</p>
-  </section>
+    <p class="muted"><span class="wip mono">WIP</span></p>
+  </section> -->
 
-  <section class="notes">
+  <!-- <section class="notes">
     <h2>Notes</h2>
-    <p class="muted"><span class="wip mono">WIP</span> Work in progress. Notes will show up here once I write them.</p>
-  </section>
+    <p class="muted"><span class="wip mono">WIP</span></p>
+  </section> -->
 
   <section>
     <p class="muted">Find me on</p>
@@ -101,10 +101,6 @@ import { site } from '../site';
     margin-bottom: 3rem;
   }
 
-  .intro,
-  .projects,
-  .notes {
-    margin-bottom: 3rem;
   h2 {
     margin: 0 0 0.75rem;
     font-size: 1rem;
@@ -127,24 +123,8 @@ import { site } from '../site';
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
-  .links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding-bottom: 0.15rem;
-    text-decoration: none;
-    border-bottom: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
-    transition: border-color 0.15s;
-  .links a:hover {
-    border-color: var(--fg);
-  .mail {
-    margin-top: 1.5rem;
   }
 
-  .copied {
-    font-size: 0.75rem;
-    opacity: 0;
-    transition: opacity 0.2s;
   .links a {
     display: inline-flex;
     align-items: center;
@@ -155,8 +135,6 @@ import { site } from '../site';
     transition: border-color 0.15s;
   }
 
-  .copied.show {
-    opacity: 1;
   .links a:hover {
     border-color: var(--fg);
   }
