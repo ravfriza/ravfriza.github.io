@@ -7,7 +7,6 @@ export const site = {
   timeZone: 'Asia/Jakarta',
   timeZoneLabel: 'WIB',
   now: 'Building this page in public',
-  next: 'First project — in progress',
   links: [
     { label: 'GitHub', href: 'https://github.com/ravfriza' },
     { label: 'LinkedIn', href: 'https://id.linkedin.com/in/ravfriza' },

@@ -1,13 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { site } from '../site';
-
-const log = (await getCollection('log')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
-
-const month = (date: Date) => date.toISOString().slice(0, 7);
 ---
 
 <Base>
@@ -29,26 +22,6 @@ const month = (date: Date) => date.toISOString().slice(0, 7);
         ></span>
       </p>
     </div>
-  </section>
-
-  <section class="row">
-    <h2 class="label mono">log</h2>
-    <ol class="log">
-      {
-        log.map((entry) => (
-          <li>
-            <time class="mono muted" datetime={entry.data.date.toISOString()}>
-              {month(entry.data.date)}
-            </time>
-            {entry.data.href ? <a href={entry.data.href}>{entry.data.title}</a> : <span>{entry.data.title}</span>}
-          </li>
-        ))
-      }
-      <li>
-        <span class="mono muted">next</span>
-        <em class="muted">{site.next}</em>
-      </li>
-    </ol>
   </section>
 
   <section class="row">
@@ -159,25 +132,10 @@ const month = (date: Date) => date.toISOString().slice(0, 7);
     }
   }
 
-  .log,
   .links {
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .log li {
-    display: grid;
-    grid-template-columns: 5.5rem 1fr;
-    margin-bottom: 0.4rem;
-  }
-
-  .log .mono {
-    font-size: 0.8125rem;
-    line-height: 1.65rem;
-  }
-
-  .links {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem 1.25rem;

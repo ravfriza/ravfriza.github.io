@@ -13,15 +13,6 @@ npm run build    # output in dist/
 ## Edit content
 
 - Bio, links, "now" line, time zone: `src/site.ts` and `src/pages/index.astro`
-- Log entries: add a Markdown file to `src/content/log/`:
-
-  ```md
-  ---
-  title: Shipped my first project
-  date: 2027-01-10
-  href: https://github.com/ravfriza/my-project   # optional
-  ---
-  ```
 
 ## Deploy
 
