@@ -14,5 +14,14 @@ export default defineConfig({
       subsets: ['latin'],
       fallbacks: ['sans-serif'],
     },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'JetBrains Mono',
+      cssVariable: '--font-jetbrains-mono',
+      weights: ['400'],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['monospace'],
+    },
   ],
 });

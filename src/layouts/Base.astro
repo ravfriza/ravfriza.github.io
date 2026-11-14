@@ -21,6 +21,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <Font cssVariable="--font-schibsted" preload />
+    <Font cssVariable="--font-jetbrains-mono" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -64,7 +65,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     --border: #e4e4e0;
     --accent: #e8590c;
     --sans: var(--font-schibsted);
-    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+    --mono: var(--font-jetbrains-mono);
     color-scheme: light;
   }
 
