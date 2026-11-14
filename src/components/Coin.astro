@@ -52,7 +52,7 @@ const ring = Array.from({ length: 56 }, (_, i) => {
   if (button && coin && result) {
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const duration = reduceMotion ? 0 : 1100;
-    let angle = 0;
+    let angle = 180; // starts on the 1000 side (tails)
     let flipping = false;
     let last = '';
     let streak = 0;
@@ -132,6 +132,7 @@ const ring = Array.from({ length: 56 }, (_, i) => {
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
+    transform: rotateX(180deg);
     transition: transform 1100ms cubic-bezier(0.2, 0.6, 0.3, 1);
   }
 
