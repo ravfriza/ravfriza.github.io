@@ -45,6 +45,8 @@ const ogImage = new URL('/og.png', Astro.site);
       <header>
         <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
         <nav class="nav">
+          <s class="mono soon" tabindex="0" data-tip="still in progress" aria-label="projects, still in progress">projects</s>
+          <s class="mono soon" tabindex="0" data-tip="still in progress" aria-label="notes, still in progress">notes</s>
           <a href="/uses" class="mono">uses</a>
           <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
         </nav>
@@ -286,6 +288,40 @@ const ogImage = new URL('/og.png', Astro.site);
     color: var(--fg);
   }
 
+  .soon {
+    position: relative;
+    color: color-mix(in srgb, var(--muted) 60%, transparent);
+    cursor: default;
+    outline: none;
+  }
+
+  .soon::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 2;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-2px);
+    transition:
+      opacity 0.15s,
+      transform 0.15s;
+  }
+
+  .soon:hover::after,
+  .soon:focus::after {
+    opacity: 1;
+    transform: none;
+  }
+
   #theme-toggle {
     background: none;
     border: 0;
@@ -319,6 +355,10 @@ const ogImage = new URL('/og.png', Astro.site);
     header {
       padding-bottom: 1rem;
       margin-bottom: 1.75rem;
+    }
+
+    .nav {
+      gap: 0.75rem;
     }
   }
 </style>
