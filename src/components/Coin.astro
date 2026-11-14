@@ -1,0 +1,153 @@
+---
+// Stacked discs between the two faces give the coin a visible edge while it spins.
+const edgeLayers = [-1, -0.5, 0, 0.5, 1];
+---
+
+<div class="coin-flip">
+  <button type="button" class="coin-button" aria-label="Flip a coin">
+    <span class="toss">
+      <span class="coin">
+        {edgeLayers.map((z) => <span class="layer" style={`transform: translateZ(${z}px)`} />)}
+        <span class="face heads mono" aria-hidden="true">H</span>
+        <span class="face tails mono" aria-hidden="true">T</span>
+      </span>
+    </span>
+  </button>
+  <span class="result mono" aria-live="polite">flip me</span>
+</div>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.coin-button');
+  const toss = button?.querySelector<HTMLElement>('.toss');
+  const coin = button?.querySelector<HTMLElement>('.coin');
+  const result = document.querySelector<HTMLElement>('.coin-flip .result');
+
+  if (button && toss && coin && result) {
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduceMotion ? 0 : 900;
+    let angle = 0;
+    let flipping = false;
+    let last = '';
+    let streak = 0;
+
+    button.addEventListener('click', () => {
+      if (flipping) return;
+      flipping = true;
+
+      const heads = Math.random() < 0.5;
+      // Land on a multiple of 360° for heads, offset by 180° for tails, after a few full turns.
+      let target = angle - (angle % 360) + (reduceMotion ? 0 : 5 * 360) + (heads ? 0 : 180);
+      if (target <= angle) target += 360;
+      angle = target;
+
+      toss.classList.remove('tossing');
+      void toss.offsetWidth; // restart the toss animation
+      toss.classList.add('tossing');
+      coin.style.transform = `rotateX(${angle}deg)`;
+
+      setTimeout(() => {
+        const outcome = heads ? 'heads' : 'tails';
+        streak = outcome === last ? streak + 1 : 1;
+        last = outcome;
+        result.textContent = streak > 1 ? `${outcome} ×${streak}` : outcome;
+        flipping = false;
+      }, duration);
+    });
+  }
+</script>
+
+<style>
+  .coin-flip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .coin-button {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .toss {
+    display: block;
+    width: 100%;
+    height: 100%;
+    perspective: 300px;
+  }
+
+  .toss.tossing {
+    animation: toss 900ms;
+  }
+
+  @keyframes toss {
+    0% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+    }
+    50% {
+      transform: translateY(-3.5rem);
+      animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.3);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .coin {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 900ms cubic-bezier(0.2, 0.6, 0.3, 1);
+  }
+
+  .layer,
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+
+  .layer {
+    background: var(--muted);
+  }
+
+  .face {
+    display: grid;
+    place-items: center;
+    border: 1.5px solid var(--fg);
+    background: var(--bg);
+    box-shadow: inset 0 0 0 2.5px var(--bg), inset 0 0 0 3.5px var(--line);
+    color: var(--fg);
+    font-size: 0.7rem;
+    backface-visibility: hidden;
+  }
+
+  .heads {
+    transform: translateZ(1.5px);
+  }
+
+  .tails {
+    transform: rotateX(180deg) translateZ(1.5px);
+  }
+
+  .result {
+    min-width: 5.5rem;
+    font-size: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toss.tossing {
+      animation: none;
+    }
+
+    .coin {
+      transition: none;
+    }
+  }
+</style>
