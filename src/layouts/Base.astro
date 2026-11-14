@@ -1,6 +1,5 @@
 ---
 import { Font } from 'astro:assets';
-import Coin from '../components/Coin.astro';
 import { site } from '../site';
 
 interface Props {
@@ -44,8 +43,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <slot />
       </main>
       <footer>
-        <span>© {new Date().getFullYear()} {site.name}</span>
-        <Coin />
+        © {new Date().getFullYear()} {site.name}
       </footer>
     </div>
     <script>
@@ -277,9 +275,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   }
 
   footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-top: 4rem;
     padding-top: 1.5rem;
     color: var(--muted);

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Coin from '../components/Coin.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../site';
 ---
@@ -51,6 +52,10 @@ import { site } from '../site';
       Or mail me at <a href={`mailto:${site.email}`} class="mono" id="email" title="Click to copy">{site.email}</a> <span id="copied" class="copied mono" aria-live="polite"></span>
     </p>
   </section>
+
+  <section class="coin-section">
+    <Coin />
+  </section>
 </Base>
 
 <script>
@@ -96,6 +101,10 @@ import { site } from '../site';
     margin-bottom: 3rem;
   }
 
+  .intro,
+  .projects,
+  .notes {
+    margin-bottom: 3rem;
   h2 {
     margin: 0 0 0.75rem;
     font-size: 1rem;
@@ -118,8 +127,24 @@ import { site } from '../site';
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-bottom: 0.15rem;
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+    transition: border-color 0.15s;
+  .links a:hover {
+    border-color: var(--fg);
+  .mail {
+    margin-top: 1.5rem;
   }
 
+  .copied {
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
   .links a {
     display: inline-flex;
     align-items: center;
@@ -130,8 +155,14 @@ import { site } from '../site';
     transition: border-color 0.15s;
   }
 
+  .copied.show {
+    opacity: 1;
   .links a:hover {
     border-color: var(--fg);
+  }
+
+  .coin-section {
+    margin-top: 3rem;
   }
 
   .mail {
