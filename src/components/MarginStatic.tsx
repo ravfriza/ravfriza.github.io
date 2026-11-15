@@ -6,10 +6,11 @@ import type { AsciiHandle, CharsetName } from "@/lib/ascii";
 import { AsciiShader } from "@/lib/ascii/shader";
 
 /*
- * Drifting contour lines of a slow noise field, drawn in Braille in the empty side
- * margins. Thin lines give Braille detail at sample scale, so it reads as glyphs,
- * not grey fog. The tone fades to 0 toward the content column, and lines thicken
- * near the pointer.
+ * Drifting contour lines of a slow noise field, drawn in Braille. Thin lines give Braille
+ * detail at sample scale, so it reads as glyphs, not grey fog. Lines thicken near the pointer.
+ *
+ * Wide screens: the lines fill the empty side margins and fade to 0 toward the content column.
+ * Narrow screens (no margins): a sparser, fainter, slower version sits behind the whole page.
  */
 const FIELD = /* glsl */ `
 float staticHeight(vec2 p, float t) {
@@ -44,27 +45,39 @@ float field(vec2 uv, vec2 res, float t) {
 
   // Thin out toward the content column. Braille lights a dot only above a threshold, so a
   // smooth tone fade would end in a hard edge; drop dots at random instead (stable per sample,
-  // no time in the hash, so nothing flickers).
+  // no time in the hash, so nothing flickers). staticClear = 0 turns the column clearing off.
   float gap = max(staticColumn.x - uv.x, uv.x - staticColumn.y);
-  float side = smoothstep(0.0, staticFade, gap);
+  float side = mix(1.0, smoothstep(0.0, staticFade, gap), staticClear);
   float keep = step(hash21(floor(uv * res)) + 0.001, side); // +0.001: nothing at side == 0
 
   return lines * keep;
 }
 `;
 
+/** Screens wide enough for real side margins next to the 51rem content column. */
+const WIDE_QUERY = "(min-width: 1300px)";
+
+const WIDE = {
+  count: 9,
+  ink: "color-mix(in srgb, var(--fg) 24%, var(--bg))",
+  speed: 0.5,
+  fps: 30,
+};
+
+const NARROW = {
+  count: 6,
+  ink: "color-mix(in srgb, var(--fg) 11%, var(--bg))",
+  speed: 0.3,
+  fps: 20,
+};
+
 export interface MarginStaticProps {
-  /** Element whose box stays clear of glyphs (the content column). */
+  /** Element whose box stays clear of glyphs on wide screens (the content column). */
   clearSelector?: string;
-  /** Contour lines across the full height. */
-  count?: number;
   /** How far into each margin (fraction of viewport width) the fade runs. */
   fade?: number;
-  /** Glyph colour: a token name or CSS colour. Defaults to a faint theme ink. */
-  ink?: string;
   charset?: CharsetName;
   cell?: number;
-  speed?: number;
   animate?: boolean;
   seed?: number;
   handle?: RefObject<AsciiHandle | null>;
@@ -73,19 +86,25 @@ export interface MarginStaticProps {
 
 export function MarginStatic({
   clearSelector = ".page",
-  count = 9,
   fade = 0.1,
-  ink = "color-mix(in srgb, var(--fg) 24%, var(--bg))",
   charset = "braille",
   cell,
-  speed = 0.5,
   animate,
   seed = 3,
   handle,
   className,
 }: MarginStaticProps) {
+  const [wide, setWide] = useState(true);
   // Content column edges in uv x (0 = left of the viewport, 1 = right).
   const [column, setColumn] = useState<[number, number]>([0.3, 0.7]);
+
+  useEffect(() => {
+    const query = matchMedia(WIDE_QUERY);
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     // The content column is replaced on every client-side navigation while this island
@@ -114,19 +133,26 @@ export function MarginStatic({
     };
   }, [clearSelector]);
 
+  const look = wide ? WIDE : NARROW;
+
   return (
     <AsciiShader
       field={FIELD}
-      uniforms={{ staticCount: count, staticColumn: column, staticFade: fade }}
+      uniforms={{
+        staticCount: look.count,
+        staticColumn: column,
+        staticFade: fade,
+        staticClear: wide ? 1 : 0,
+      }}
       charset={charset}
       colorMode="mono"
-      ink={ink}
+      ink={look.ink}
       background="transparent"
       cell={cell}
-      speed={speed}
+      speed={look.speed}
       animate={animate}
       stillTime={14}
-      fps={30}
+      fps={look.fps}
       seed={seed}
       handle={handle}
       className={className}

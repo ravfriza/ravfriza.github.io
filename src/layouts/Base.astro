@@ -64,7 +64,7 @@ const ogImage = new URL('/og.png', Astro.site);
   </head>
   <body>
     <div class="margin-static" transition:persist="margin-static">
-      <MarginStatic client:media-idle="(min-width: 1300px)" className="absolute inset-0" />
+      <MarginStatic client:media-idle="all" className="absolute inset-0" />
     </div>
     <div class="page">
       <header>
@@ -222,7 +222,8 @@ const ogImage = new URL('/og.png', Astro.site);
       fixed;
   }
 
-  /* Full-viewport layer behind the page; the effect clears the content column itself. */
+  /* Full-viewport layer behind the page. Wide screens: the effect clears the content column
+     itself. Narrow screens: faint lines run behind the text. */
   .margin-static {
     position: fixed;
     inset: 0;
@@ -230,9 +231,14 @@ const ogImage = new URL('/og.png', Astro.site);
     pointer-events: none;
   }
 
+  /* Where the lines run behind text, a background-coloured halo keeps every letter on clear
+     ground (invisible over the plain background). */
   @media (max-width: 1299px) {
-    .margin-static {
-      display: none;
+    .page {
+      text-shadow:
+        0 0 1px var(--bg),
+        0 0 3px var(--bg),
+        0 0 6px var(--bg);
     }
   }
 
