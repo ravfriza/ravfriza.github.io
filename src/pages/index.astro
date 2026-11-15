@@ -59,22 +59,26 @@ import { site } from '../site';
 </Base>
 
 <script>
-  const email = document.getElementById('email');
-  const copied = document.getElementById('copied');
-  let timer = 0;
-  email?.addEventListener('click', async (event) => {
-    if (!navigator.clipboard || !copied) return; // fall back to the mailto link
-    event.preventDefault();
-    try {
-      await navigator.clipboard.writeText(email.textContent ?? '');
-    } catch {
-      location.href = email.getAttribute('href') ?? '';
-      return;
-    }
-    copied.textContent = 'Copied';
-    copied.classList.add('show');
-    clearTimeout(timer);
-    timer = window.setTimeout(() => copied.classList.remove('show'), 1500);
+  // Runs on every visit to this page, including client-side navigations back to it.
+  document.addEventListener('astro:page-load', () => {
+    const email = document.getElementById('email');
+    const copied = document.getElementById('copied');
+    if (!email || !copied) return;
+    let timer = 0;
+    email.addEventListener('click', async (event) => {
+      if (!navigator.clipboard) return; // fall back to the mailto link
+      event.preventDefault();
+      try {
+        await navigator.clipboard.writeText(email.textContent ?? '');
+      } catch {
+        location.href = email.getAttribute('href') ?? '';
+        return;
+      }
+      copied.textContent = 'Copied';
+      copied.classList.add('show');
+      clearTimeout(timer);
+      timer = window.setTimeout(() => copied.classList.remove('show'), 1500);
+    });
   });
 </script>
 

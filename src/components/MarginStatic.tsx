@@ -88,19 +88,29 @@ export function MarginStatic({
   const [column, setColumn] = useState<[number, number]>([0.3, 0.7]);
 
   useEffect(() => {
-    const target = document.querySelector(clearSelector);
-    if (!target) return;
+    // The content column is replaced on every client-side navigation while this island
+    // persists, so the observer is re-pointed at the new element on each page load.
+    const observer = new ResizeObserver(() => measure());
+    let target: Element | null = null;
     const measure = () => {
+      if (!target) return;
       const rect = target.getBoundingClientRect();
       setColumn([rect.left / innerWidth, rect.right / innerWidth]);
     };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(target);
+    const bind = () => {
+      observer.disconnect();
+      target = document.querySelector(clearSelector);
+      if (!target) return;
+      observer.observe(target);
+      measure();
+    };
+    bind();
     addEventListener("resize", measure);
+    document.addEventListener("astro:page-load", bind);
     return () => {
       observer.disconnect();
       removeEventListener("resize", measure);
+      document.removeEventListener("astro:page-load", bind);
     };
   }, [clearSelector]);
 

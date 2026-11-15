@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import { MarginStatic } from '../components/MarginStatic';
 import { site } from '../site';
@@ -39,15 +40,29 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={ogImage} />
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
     <script is:inline>
+      const themeColor = (theme) => (theme === 'dark' ? '#050505' : '#fbfbfa');
       const stored = localStorage.getItem('theme');
       const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-      document.querySelector('meta[name="theme-color"]').content = dark ? '#050505' : '#fbfbfa';
+      document.querySelector('meta[name="theme-color"]').content = themeColor(document.documentElement.dataset.theme);
+
+      // Client-side navigation copies <html> attributes and <head> from the incoming page, which
+      // carries no theme. Stamp the current theme on it before the swap so nothing flashes.
+      if (!window.__themeCarry) {
+        window.__themeCarry = true;
+        document.addEventListener('astro:before-swap', (event) => {
+          const theme = document.documentElement.dataset.theme;
+          event.newDocument.documentElement.dataset.theme = theme;
+          const meta = event.newDocument.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = themeColor(theme);
+        });
+      }
     </script>
   </head>
   <body>
-    <div class="margin-static">
+    <div class="margin-static" transition:persist="margin-static">
       <MarginStatic client:media-idle="(min-width: 1300px)" className="absolute inset-0" />
     </div>
     <div class="page">
@@ -71,71 +86,85 @@ const ogImage = new URL('/og.png', Astro.site);
       const root = document.documentElement;
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // Theme toggle: the new theme grows out of the button as a circle.
-      const toggle = document.getElementById('theme-toggle');
-      toggle?.addEventListener('click', () => {
-        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-        const apply = () => {
-          root.dataset.theme = next;
-          localStorage.setItem('theme', next);
-          document
-            .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-            ?.setAttribute('content', next === 'dark' ? '#050505' : '#fbfbfa');
-        };
-        if (!('startViewTransition' in document) || reduceMotion) return apply();
-
-        const { left, top, width, height } = toggle.getBoundingClientRect();
-        const x = left + width / 2;
-        const y = top + height / 2;
-        const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        document.startViewTransition(apply).ready.then(() => {
-          root.animate(
-            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-            { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' },
-          );
-        });
-      });
-
-      // Handle: characters scramble, then settle left to right.
-      const handle = document.querySelector<HTMLElement>('.handle');
-      if (handle && !reduceMotion) {
-        const text = handle.textContent ?? '';
-        const glyphs = 'abcdefghijklmnopqrstuvwxyz0123456789#%&*+=<>/';
-        let raf = 0;
-        const scramble = () => {
-          cancelAnimationFrame(raf);
-          let frame = 0;
-          const step = () => {
-            const settled = frame / 3;
-            handle.textContent = [...text]
-              .map((char, i) => (i < settled ? char : glyphs[(Math.random() * glyphs.length) | 0]))
-              .join('');
-            if (settled < text.length) {
-              frame++;
-              raf = requestAnimationFrame(step);
-            }
+      // This module runs once; the header is replaced on every client-side navigation,
+      // so its listeners are attached again on each `astro:page-load`.
+      document.addEventListener('astro:page-load', () => {
+        // Theme toggle: the new theme grows out of the button as a circle.
+        const toggle = document.getElementById('theme-toggle');
+        toggle?.addEventListener('click', () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          const apply = () => {
+            root.dataset.theme = next;
+            localStorage.setItem('theme', next);
+            document
+              .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+              ?.setAttribute('content', next === 'dark' ? '#050505' : '#fbfbfa');
           };
-          step();
-        };
-        handle.addEventListener('mouseenter', scramble);
-        handle.addEventListener('focus', scramble);
-      }
+          if (!('startViewTransition' in document) || reduceMotion) return apply();
+
+          const { left, top, width, height } = toggle.getBoundingClientRect();
+          const x = left + width / 2;
+          const y = top + height / 2;
+          const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+          // Scopes the "no crossfade" rule to the theme switch, so page navigations keep Astro's fade.
+          root.classList.add('theme-switching');
+          const transition = document.startViewTransition(apply);
+          transition.ready.then(() => {
+            root.animate(
+              { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+              { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' },
+            );
+          });
+          transition.finished.finally(() => root.classList.remove('theme-switching'));
+        });
+
+        // Handle: characters scramble, then settle left to right.
+        const handle = document.querySelector<HTMLElement>('.handle');
+        if (handle && !reduceMotion) {
+          const text = handle.textContent ?? '';
+          const glyphs = 'abcdefghijklmnopqrstuvwxyz0123456789#%&*+=<>/';
+          let raf = 0;
+          const scramble = () => {
+            cancelAnimationFrame(raf);
+            let frame = 0;
+            const step = () => {
+              const settled = frame / 3;
+              handle.textContent = [...text]
+                .map((char, i) => (i < settled ? char : glyphs[(Math.random() * glyphs.length) | 0]))
+                .join('');
+              if (settled < text.length) {
+                frame++;
+                raf = requestAnimationFrame(step);
+              }
+            };
+            step();
+          };
+          handle.addEventListener('mouseenter', scramble);
+          handle.addEventListener('focus', scramble);
+        }
+      });
 
       // Grid lines brighten near the pointer (mouse/trackpad only). The position lives on
       // <body>, not <html>: the ASCII engine re-reads theme colours on every <html> style change.
+      // <body> is replaced on navigation, so it is looked up on every move.
       if (matchMedia('(pointer: fine)').matches) {
-        const body = document.body;
         let raf = 0;
+        let last: PointerEvent | null = null;
+        const paint = () => {
+          if (!last) return;
+          document.body.style.setProperty('--mx', `${last.clientX}px`);
+          document.body.style.setProperty('--my', `${last.clientY}px`);
+        };
         addEventListener('pointermove', (event) => {
+          last = event;
           cancelAnimationFrame(raf);
-          raf = requestAnimationFrame(() => {
-            body.style.setProperty('--mx', `${event.clientX}px`);
-            body.style.setProperty('--my', `${event.clientY}px`);
-          });
+          raf = requestAnimationFrame(paint);
         });
+        document.addEventListener('astro:after-swap', paint);
         document.addEventListener('pointerleave', () => {
-          body.style.removeProperty('--mx');
-          body.style.removeProperty('--my');
+          last = null;
+          document.body.style.removeProperty('--mx');
+          document.body.style.removeProperty('--my');
         });
       }
     </script>
@@ -221,8 +250,8 @@ const ogImage = new URL('/og.png', Astro.site);
     color: var(--muted);
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  html.theme-switching::view-transition-old(root),
+  html.theme-switching::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
   }

@@ -45,15 +45,17 @@ const ring = Array.from({ length: 56 }, (_, i) => {
 </div>
 
 <script>
-  const button = document.querySelector<HTMLButtonElement>('.coin-button');
-  const coin = button?.querySelector<HTMLElement>('.coin');
-  const result = document.querySelector<HTMLElement>('.coin-flip .result');
-
   // Rare easter egg: sometimes the landing comes with a meme sound.
   const SOUND_CHANCE = 1 / 8;
   const SOUNDS = ['fah', 'vine-boom', 'undertaker-bell', 'fart'].map((name) => `/sounds/${name}.mp3`);
 
-  if (button && coin && result) {
+  // Runs on every visit to a page with the coin, including client-side navigations back to it.
+  document.addEventListener('astro:page-load', () => {
+    const button = document.querySelector<HTMLButtonElement>('.coin-button');
+    const coin = button?.querySelector<HTMLElement>('.coin');
+    const result = document.querySelector<HTMLElement>('.coin-flip .result');
+    if (!button || !coin || !result) return;
+
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const duration = reduceMotion ? 0 : 1100;
     let angle = 180; // starts on the 1000 side (tails)
@@ -93,7 +95,7 @@ const ring = Array.from({ length: 56 }, (_, i) => {
         }
       }, duration);
     });
-  }
+  });
 </script>
 
 <style>
