@@ -2,6 +2,7 @@
 import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 import { MarginStatic } from '../components/MarginStatic';
 import { site } from '../site';
 
@@ -69,9 +70,15 @@ const ogImage = new URL('/og.png', Astro.site);
       <header>
         <a href="/" class="mono handle" aria-label={site.handle}>{site.handle}</a>
         <nav class="nav">
-          <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="projects, still in progress">projects</s>
-          <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="notes, still in progress">notes</s>
-          <a href="/uses/" class="mono">uses</a>
+          <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="projects, still in progress">
+            <span class="nav-label">projects</span><span class="nav-icon"><Icon name="projects" /></span>
+          </s>
+          <s class="mono soon" tabindex="0" data-tip="still in progress hehe" aria-label="notes, still in progress">
+            <span class="nav-label">notes</span><span class="nav-icon"><Icon name="notes" /></span>
+          </s>
+          <a href="/uses/" class="mono" aria-label="uses">
+            <span class="nav-label">uses</span><span class="nav-icon"><Icon name="uses" /></span>
+          </a>
           <button type="button" id="theme-toggle" class="mono" aria-label="Toggle dark mode">◐</button>
         </nav>
       </header>
@@ -352,6 +359,11 @@ const ogImage = new URL('/og.png', Astro.site);
     outline: none;
   }
 
+  /* Text labels on desktop, icons on phones. */
+  .nav-icon {
+    display: none;
+  }
+
   .soon::after {
     content: attr(data-tip);
     position: absolute;
@@ -415,7 +427,35 @@ const ogImage = new URL('/og.png', Astro.site);
     }
 
     .nav {
-      gap: 0.75rem;
+      gap: 0.25rem;
+    }
+
+    .nav-label {
+      display: none;
+    }
+
+    .nav-icon {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 0.5rem;
+      font-size: 1.15rem;
+    }
+
+    /* The icon version of the strikethrough: a slash across work-in-progress icons. */
+    .soon .nav-icon::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1.5em;
+      height: 1.5px;
+      background: currentColor;
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    #theme-toggle {
+      padding: 0.5rem;
     }
   }
 </style>
